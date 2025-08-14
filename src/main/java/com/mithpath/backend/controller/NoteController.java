@@ -5,6 +5,7 @@ import com.mithpath.backend.model.Note;
 import com.mithpath.backend.response.NoteResponse;
 import com.mithpath.backend.service.interfaces.NoteService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,14 @@ public class NoteController {
 
     @Operation(summary = "Create a new note")
     @PostMapping
-    public ResponseEntity<Note> create(@RequestBody NoteDto dto) {
+    public ResponseEntity<Note> create(@Valid @RequestBody NoteDto dto) {
         Note saved = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @Operation(summary = "Update a note by ID")
     @PutMapping("/{id}")
-    public ResponseEntity<Note> update(@PathVariable Integer id, @RequestBody NoteDto dto) {
+    public ResponseEntity<Note> update(@PathVariable Integer id, @Valid @RequestBody NoteDto dto) {
         Note found = service.update(id, dto);
         return ResponseEntity.status(HttpStatus.OK).body(found);
     }
