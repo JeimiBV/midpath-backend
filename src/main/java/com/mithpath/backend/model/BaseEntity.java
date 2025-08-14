@@ -2,10 +2,10 @@ package com.mithpath.backend.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -13,20 +13,17 @@ import java.time.LocalDateTime;
 @Setter
 @MappedSuperclass
 public class BaseEntity {
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private Boolean active = true;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(updatable = false)
+    @CreationTimestamp
+    public LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+    @UpdateTimestamp
+    public LocalDateTime updatedAt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @Column(updatable = false)
+    public String createdBy;
+
+    public String updatedBy;
 }
