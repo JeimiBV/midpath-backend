@@ -1,6 +1,9 @@
 package com.mithpath.backend.service.implement;
 
 import com.mithpath.backend.dto.AuthDto;
+import com.mithpath.backend.exception.MessageUtil;
+import com.mithpath.backend.exception.UserAlreadyExistsException;
+import com.mithpath.backend.exception.UsernameAlreadyExistsException;
 import com.mithpath.backend.model.User;
 import com.mithpath.backend.repository.UserRepository;
 import com.mithpath.backend.security.JwtUtil;
@@ -18,13 +21,19 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final MessageUtil messageUtil;
 
     @Override
     public User register(AuthDto dto) {
-        if(userRepository.existsByUsername(dto.getUsername()))
-            throw new IllegalArgumentException("Username already exists");
-        if(userRepository.existsByEmail(dto.getEmail()))
-            throw new IllegalArgumentException("Email already exists");
+        if(userRepository.existsByUsername(dto.getUsername())) {
+            String message = messageUtil.getMessage("exception.usernameAlreadyExists.message", dto.getUsername());
+            throw new UsernameAlreadyExistsException(dto.getUsername(), message);
+        }
+
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            String message = messageUtil.getMessage("exception.userAlreadyExists.message", dto.getEmail());
+            throw new UserAlreadyExistsException(dto.getEmail(), message);
+        }
 
         User user = User.builder()
                 .username(dto.getUsername())
