@@ -9,7 +9,9 @@ import java.util.List;
 public interface NoteService {
     Note create(NoteDto dto);
     Note update(Integer id, NoteDto dto);
-    List<NoteResponse> search(String title, Integer tagId);
+    List<NoteResponse> search(String title, String content, Integer tagId, boolean archived);
     NoteResponse findById(Integer id);
     void delete(Integer id);
+    Note archive(Integer id);
+    Note unarchive(Integer id);
 }

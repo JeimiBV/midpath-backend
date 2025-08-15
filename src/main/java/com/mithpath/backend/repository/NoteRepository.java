@@ -16,14 +16,18 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
         SELECT new com.mithpath.backend.response.NoteResponse(n.id, n.title, n.content, n.tag.id, n.tag.name)
         FROM Note n
         WHERE n.user = :user
-        AND (:title IS NULL OR n.title LIKE %:title%)
+        AND (:title IS NULL OR LOWER(n.title) LIKE LOWER(CONCAT('%', :title, '%')))
+        AND (:content IS NULL OR LOWER(n.content) LIKE LOWER(CONCAT('%', :content, '%')))
         AND (:tagId IS NULL OR n.tag.id = :tagId)
+        AND (:archive IS NULL OR n.archived = :archive)
         AND n.active
     """)
     List<NoteResponse> search(
             @Param("user") User user,
             @Param("title") String title,
-            @Param("tagId") Integer tagId);
+            @Param("content") String content,
+            @Param("tagId") Integer tagId,
+            @Param("archive") Boolean archive);
 
     @Query("""
         SELECT new com.mithpath.backend.response.NoteResponse(n.id, n.title, n.content, n.tag.id, n.tag.name)

@@ -21,6 +21,9 @@ public class Note extends BaseEntity{
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "archived")
+    private boolean archived = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore

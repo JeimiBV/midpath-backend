@@ -63,9 +63,9 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public List<NoteResponse> search(String title, Integer tagId) {
+    public List<NoteResponse> search(String title, String content, Integer tagId, boolean archived) {
         User user = getCurrentUser();
-        return repository.search(user, title, tagId);
+        return repository.search(user, title, content, tagId, archived);
     }
 
     @Override
@@ -82,5 +82,25 @@ public class NoteServiceImpl implements NoteService {
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME, id));
         found.setActive(false);
         repository.save(found);
+    }
+
+    @Override
+    public Note archive(Integer id) {
+        User user = getCurrentUser();
+
+        Note found = repository.findNoteByIdAndUserAndActiveTrue(id, user)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME, id));
+        found.setArchived(true);
+        return repository.save(found);
+    }
+
+    @Override
+    public Note unarchive(Integer id) {
+        User user = getCurrentUser();
+
+        Note found = repository.findNoteByIdAndUserAndActiveTrue(id, user)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME, id));
+        found.setArchived(false);
+        return repository.save(found);
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class AuthController {
 
     @Operation(summary = "Login user and get JWT token")
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Validated(AuthDto.LoginGroup.class) @RequestBody AuthDto dto) {
+    public ResponseEntity<Map<String, String>> login(@Validated(AuthDto.LoginGroup.class) @RequestBody AuthDto dto) {
         return ResponseEntity.ok(authService.login(dto));
     }
 

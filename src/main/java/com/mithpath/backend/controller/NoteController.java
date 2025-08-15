@@ -5,7 +5,6 @@ import com.mithpath.backend.model.Note;
 import com.mithpath.backend.response.NoteResponse;
 import com.mithpath.backend.service.interfaces.NoteService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,14 +46,30 @@ public class NoteController {
     @GetMapping("/search")
     public ResponseEntity<List<NoteResponse>> search(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) Integer tagId) {
-        List<NoteResponse> list = service.search(title, tagId);
+            @RequestParam(required = false) String content,
+            @RequestParam(required = false) Integer tagId,
+            @RequestParam(defaultValue = "false") boolean archived) {
+        List<NoteResponse> list = service.search(title, content, tagId, archived);
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 
+    @Operation(summary = "Delete a note by ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Archive a note by ID")
+    @PatchMapping("/{id}/archive")
+    public ResponseEntity<Note> archiveNote(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.archive(id));
+    }
+
+    @Operation(summary = "Unarchive a note by ID")
+    @PatchMapping("/{id}/unarchive")
+    public ResponseEntity<Note> unarchiveNote(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.unarchive(id));
+    }
+
 }

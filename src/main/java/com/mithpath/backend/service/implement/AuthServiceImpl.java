@@ -14,6 +14,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -43,14 +46,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String login(AuthDto dto) {
+    public Map<String, String> login(AuthDto dto) {
         User user = userRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword()))
             throw new IllegalArgumentException("Invalid username or password");
 
-        return jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername());
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        return response;
     }
 
     @Override
