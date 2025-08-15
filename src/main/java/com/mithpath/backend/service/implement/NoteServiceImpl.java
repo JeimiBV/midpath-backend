@@ -6,9 +6,11 @@ import com.mithpath.backend.exception.MessageUtil;
 import com.mithpath.backend.filter.NoteFilter;
 import com.mithpath.backend.mapper.NoteMapper;
 import com.mithpath.backend.model.Note;
+import com.mithpath.backend.model.NoteVersion;
 import com.mithpath.backend.model.Tag;
 import com.mithpath.backend.model.User;
 import com.mithpath.backend.repository.NoteRepository;
+import com.mithpath.backend.repository.NoteVersionRepository;
 import com.mithpath.backend.repository.TagRepository;
 import com.mithpath.backend.repository.UserRepository;
 import com.mithpath.backend.response.NoteResponse;
@@ -30,6 +32,7 @@ public class NoteServiceImpl implements NoteService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final UserSearchStateService searchStateService;
+    private final NoteVersionRepository noteVersionRepository;
 
     private static final String ENTITY_NAME = Note.class.getSimpleName();
 
@@ -61,6 +64,8 @@ public class NoteServiceImpl implements NoteService {
         Note found = repository.findNoteByIdAndUserAndActiveTrue(id, user)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME, id));
 
+        saveVersion(found);
+
         Note updated = mapper.fromDto(dto, found);
         return repository.save(updated);
     }
@@ -87,8 +92,10 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public void delete(Integer id) {
         User user = getCurrentUser();
+
         Note found = repository.findNoteByIdAndUserAndActiveTrue(id, user)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME, id));
+        saveVersion(found);
         found.setActive(false);
         repository.save(found);
     }
@@ -99,6 +106,7 @@ public class NoteServiceImpl implements NoteService {
 
         Note found = repository.findNoteByIdAndUserAndActiveTrue(id, user)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME, id));
+        saveVersion(found);
         found.setArchived(true);
         return repository.save(found);
     }
@@ -109,7 +117,19 @@ public class NoteServiceImpl implements NoteService {
 
         Note found = repository.findNoteByIdAndUserAndActiveTrue(id, user)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME, id));
+        saveVersion(found);
         found.setArchived(false);
         return repository.save(found);
+    }
+
+    private void saveVersion(Note note) {
+        NoteVersion version = NoteVersion.builder()
+                .note(note)
+                .title(note.getTitle())
+                .content(note.getContent())
+                .archived(note.getArchived())
+                .build();
+
+        noteVersionRepository.save(version);
     }
 }

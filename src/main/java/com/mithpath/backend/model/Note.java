@@ -22,7 +22,7 @@ public class Note extends BaseEntity{
     private String content;
 
     @Column(name = "archived")
-    private boolean archived = false;
+    private Boolean archived = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

@@ -73,4 +73,5 @@ public class NoteController {
     public ResponseEntity<Note> unarchiveNote(@PathVariable Integer id) {
         return ResponseEntity.ok(service.unarchive(id));
     }
+
 }
