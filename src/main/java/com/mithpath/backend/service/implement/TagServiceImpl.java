@@ -3,6 +3,8 @@ package com.mithpath.backend.service.implement;
 import com.mithpath.backend.dto.TagDto;
 import com.mithpath.backend.exception.EntityNotFoundException;
 import com.mithpath.backend.exception.MessageUtil;
+import com.mithpath.backend.filter.NoteFilter;
+import com.mithpath.backend.filter.TagFilter;
 import com.mithpath.backend.model.Note;
 import com.mithpath.backend.model.Tag;
 import com.mithpath.backend.model.User;
@@ -11,6 +13,7 @@ import com.mithpath.backend.repository.TagRepository;
 import com.mithpath.backend.repository.UserRepository;
 import com.mithpath.backend.response.TagResponse;
 import com.mithpath.backend.service.interfaces.TagService;
+import com.mithpath.backend.service.interfaces.UserSearchStateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +28,8 @@ public class TagServiceImpl implements TagService {
     private final TagRepository repository;
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;
+    private final UserSearchStateService searchStateService;
+
 
     private static final String ENTITY_NAME = Tag.class.getSimpleName();
 
@@ -55,9 +60,15 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagResponse> search(String name) {
+    public List<TagResponse> search(TagFilter filter) {
         User user = getCurrentUser();
-        return repository.search(user);
+        if (filter == null) {
+            filter = searchStateService.getFilters("tag", TagFilter.class);
+        } else {
+            searchStateService.saveFilters("tag", filter, user);
+        }
+
+        return repository.search(user, filter);
     }
 
     @Override

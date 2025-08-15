@@ -1,5 +1,6 @@
 package com.mithpath.backend.repository;
 
+import com.mithpath.backend.filter.NoteFilter;
 import com.mithpath.backend.model.Note;
 import com.mithpath.backend.model.Tag;
 import com.mithpath.backend.model.User;
@@ -13,21 +14,22 @@ import java.util.Optional;
 
 public interface NoteRepository extends JpaRepository<Note, Integer> {
     @Query("""
-        SELECT new com.mithpath.backend.response.NoteResponse(n.id, n.title, n.content, n.tag.id, n.tag.name)
+        SELECT new com.mithpath.backend.response.NoteResponse(
+            n.id, n.title, n.content, n.tag.id, n.tag.name
+        )
         FROM Note n
         WHERE n.user = :user
-        AND (:title IS NULL OR LOWER(n.title) LIKE LOWER(CONCAT('%', :title, '%')))
-        AND (:content IS NULL OR LOWER(n.content) LIKE LOWER(CONCAT('%', :content, '%')))
-        AND (:tagId IS NULL OR n.tag.id = :tagId)
-        AND (:archive IS NULL OR n.archived = :archive)
-        AND n.active
+          AND (:#{#filter.title} IS NULL OR LOWER(n.title) LIKE LOWER(CONCAT('%', :#{#filter.title}, '%')))
+          AND (:#{#filter.content} IS NULL OR LOWER(n.content) LIKE LOWER(CONCAT('%', :#{#filter.content}, '%')))
+          AND (:#{#filter.tagId} IS NULL OR n.tag.id IN :#{#filter.tagId})
+          AND (:#{#filter.archived} IS NULL OR n.archived = :#{#filter.archived})
+          AND n.active = true
     """)
     List<NoteResponse> search(
             @Param("user") User user,
-            @Param("title") String title,
-            @Param("content") String content,
-            @Param("tagId") Integer tagId,
-            @Param("archive") Boolean archive);
+            @Param("filter") NoteFilter filter
+    );
+
 
     @Query("""
         SELECT new com.mithpath.backend.response.NoteResponse(n.id, n.title, n.content, n.tag.id, n.tag.name)

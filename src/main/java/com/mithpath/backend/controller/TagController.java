@@ -1,6 +1,7 @@
 package com.mithpath.backend.controller;
 
 import com.mithpath.backend.dto.TagDto;
+import com.mithpath.backend.filter.TagFilter;
 import com.mithpath.backend.model.Tag;
 import com.mithpath.backend.response.TagResponse;
 import com.mithpath.backend.service.interfaces.TagService;
@@ -33,10 +34,11 @@ public class TagController {
         return ResponseEntity.status(HttpStatus.OK).body(found);
     }
 
-    @Operation(summary = "Get all tags of the authenticated user")
+    @Operation(summary = "Get all tags of the authenticated user with optional filtering")
     @GetMapping("/search")
     public ResponseEntity<List<TagResponse>> search(@RequestParam(required = false) String name) {
-        List<TagResponse> list = service.search(name);
+        TagFilter filter = new TagFilter(name);
+        List<TagResponse> list = service.search(filter);
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 

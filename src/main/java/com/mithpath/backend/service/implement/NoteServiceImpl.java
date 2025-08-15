@@ -3,6 +3,7 @@ package com.mithpath.backend.service.implement;
 import com.mithpath.backend.dto.NoteDto;
 import com.mithpath.backend.exception.EntityNotFoundException;
 import com.mithpath.backend.exception.MessageUtil;
+import com.mithpath.backend.filter.NoteFilter;
 import com.mithpath.backend.mapper.NoteMapper;
 import com.mithpath.backend.model.Note;
 import com.mithpath.backend.model.Tag;
@@ -12,6 +13,7 @@ import com.mithpath.backend.repository.TagRepository;
 import com.mithpath.backend.repository.UserRepository;
 import com.mithpath.backend.response.NoteResponse;
 import com.mithpath.backend.service.interfaces.NoteService;
+import com.mithpath.backend.service.interfaces.UserSearchStateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +29,7 @@ public class NoteServiceImpl implements NoteService {
 
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final UserSearchStateService searchStateService;
 
     private static final String ENTITY_NAME = Note.class.getSimpleName();
 
@@ -63,9 +66,15 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public List<NoteResponse> search(String title, String content, Integer tagId, boolean archived) {
+    public List<NoteResponse> search(NoteFilter filter) {
         User user = getCurrentUser();
-        return repository.search(user, title, content, tagId, archived);
+        if (filter == null) {
+            filter = searchStateService.getFilters("note", NoteFilter.class);
+        } else {
+            searchStateService.saveFilters("note", filter, user);
+        }
+
+        return repository.search(user, filter);
     }
 
     @Override

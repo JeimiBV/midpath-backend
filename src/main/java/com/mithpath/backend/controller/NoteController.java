@@ -1,6 +1,7 @@
 package com.mithpath.backend.controller;
 
 import com.mithpath.backend.dto.NoteDto;
+import com.mithpath.backend.filter.NoteFilter;
 import com.mithpath.backend.model.Note;
 import com.mithpath.backend.response.NoteResponse;
 import com.mithpath.backend.service.interfaces.NoteService;
@@ -42,14 +43,15 @@ public class NoteController {
         return ResponseEntity.status(HttpStatus.OK).body(found);
     }
 
-    @Operation(summary = "Get all notes")
+    @Operation(summary = "Get all notes of the authenticated user with optional filtering")
     @GetMapping("/search")
     public ResponseEntity<List<NoteResponse>> search(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String content,
             @RequestParam(required = false) Integer tagId,
             @RequestParam(defaultValue = "false") boolean archived) {
-        List<NoteResponse> list = service.search(title, content, tagId, archived);
+        NoteFilter filter = new NoteFilter(title, content, tagId, archived);
+        List<NoteResponse> list = service.search(filter);
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 
@@ -71,5 +73,4 @@ public class NoteController {
     public ResponseEntity<Note> unarchiveNote(@PathVariable Integer id) {
         return ResponseEntity.ok(service.unarchive(id));
     }
-
 }
