@@ -25,4 +25,10 @@ public class Note extends BaseEntity{
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "tag_id")
+    @JsonIgnore
+    private Tag tag;
+
 }

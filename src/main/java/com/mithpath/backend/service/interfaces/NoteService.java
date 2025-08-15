@@ -9,7 +9,7 @@ import java.util.List;
 public interface NoteService {
     Note create(NoteDto dto);
     Note update(Integer id, NoteDto dto);
-    List<NoteResponse> search(String title);
+    List<NoteResponse> search(String title, Integer tagId);
     NoteResponse findById(Integer id);
     void delete(Integer id);
 }
