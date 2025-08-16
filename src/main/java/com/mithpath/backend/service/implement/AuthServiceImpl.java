@@ -1,5 +1,6 @@
 package com.mithpath.backend.service.implement;
 
+import com.mithpath.backend.common.enums.RoleName;
 import com.mithpath.backend.dto.AuthDto;
 import com.mithpath.backend.exception.DuplicateException;
 import com.mithpath.backend.exception.MessageUtil;
@@ -23,6 +24,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     public User register(AuthDto dto) {
@@ -36,10 +38,16 @@ public class AuthServiceImpl implements AuthService {
             throw new DuplicateException(message);
         }
 
+        RoleName role = RoleName.USER;
+        if (dto.getRole() != null && dto.getRole().equalsIgnoreCase("ADMIN")) {
+            role = RoleName.ADMIN;
+        }
+
         User user = User.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
+                .role(role)
                 .build();
 
         return userRepository.save(user);
@@ -50,15 +58,20 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword()))
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password");
+        }
 
-        String token = jwtUtil.generateToken(user.getUsername());
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+
+        String token = jwtUtil.generateToken(userDetails);
 
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
         return response;
     }
+
+
 
     @Override
     public User getProfile() {

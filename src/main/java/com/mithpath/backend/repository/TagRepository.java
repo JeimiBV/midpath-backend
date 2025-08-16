@@ -28,8 +28,17 @@ public interface TagRepository extends JpaRepository<Tag, Integer> {
         AND (:#{#filter.name} IS NULL OR LOWER(t.name) LIKE LOWER(CONCAT('%', :#{#filter.name}, '%')))
         AND t.active
     """)
-    List<TagResponse> search(
+    List<TagResponse> searchByUser(
             @Param("user") User user,
+            @Param("filter") TagFilter filter);
+
+    @Query("""
+        SELECT new com.mithpath.backend.response.TagResponse(t.id, t.name)
+        FROM Tag t
+        WHERE (:#{#filter.name} IS NULL OR LOWER(t.name) LIKE LOWER(CONCAT('%', :#{#filter.name}, '%')))
+        AND t.active
+    """)
+    List<TagResponse> searchAll(
             @Param("filter") TagFilter filter);
 
     Optional<Tag> findByIdAndUserAndActiveTrue(Integer id, User user);

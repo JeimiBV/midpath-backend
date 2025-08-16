@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,6 +69,7 @@ public class NoteController {
         return ResponseEntity.ok(service.archive(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Unarchive a note by ID")
     @PatchMapping("/{id}/unarchive")
     public ResponseEntity<Note> unarchiveNote(@PathVariable Integer id) {

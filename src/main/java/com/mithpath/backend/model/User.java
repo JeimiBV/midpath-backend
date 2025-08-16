@@ -1,5 +1,6 @@
 package com.mithpath.backend.model;
 
+import com.mithpath.backend.common.enums.RoleName;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,12 +16,16 @@ public class User extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private RoleName role;
 }

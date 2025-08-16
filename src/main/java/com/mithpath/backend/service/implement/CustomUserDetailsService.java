@@ -3,6 +3,7 @@ package com.mithpath.backend.service.implement;
 import com.mithpath.backend.model.User;
 import com.mithpath.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,7 +24,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .authorities(Collections.emptyList())
+                .authorities(Collections.singleton(
+                        new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                ))
                 .build();
     }
+
 }

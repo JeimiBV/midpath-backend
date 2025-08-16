@@ -1,9 +1,9 @@
 package com.mithpath.backend.service.implement;
 
+import com.mithpath.backend.common.enums.RoleName;
 import com.mithpath.backend.dto.TagDto;
 import com.mithpath.backend.exception.EntityNotFoundException;
 import com.mithpath.backend.exception.MessageUtil;
-import com.mithpath.backend.filter.NoteFilter;
 import com.mithpath.backend.filter.TagFilter;
 import com.mithpath.backend.model.Note;
 import com.mithpath.backend.model.Tag;
@@ -68,7 +68,11 @@ public class TagServiceImpl implements TagService {
             searchStateService.saveFilters("tag", filter, user);
         }
 
-        return repository.search(user, filter);
+        if (user.getRole() == RoleName.ADMIN) {
+            return repository.searchAll(filter);
+        } else {
+            return repository.searchByUser(user, filter);
+        }
     }
 
     @Override

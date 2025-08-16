@@ -1,5 +1,6 @@
 package com.mithpath.backend.service.implement;
 
+import com.mithpath.backend.common.enums.RoleName;
 import com.mithpath.backend.dto.NoteDto;
 import com.mithpath.backend.exception.EntityNotFoundException;
 import com.mithpath.backend.exception.MessageUtil;
@@ -73,14 +74,20 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public List<NoteResponse> search(NoteFilter filter) {
         User user = getCurrentUser();
+
         if (filter == null) {
             filter = searchStateService.getFilters("note", NoteFilter.class);
         } else {
             searchStateService.saveFilters("note", filter, user);
         }
 
-        return repository.search(user, filter);
+        if (user.getRole() == RoleName.ADMIN) {
+            return repository.searchAll(filter);
+        } else {
+            return repository.searchByUser(user, filter);
+        }
     }
+
 
     @Override
     public NoteResponse findById(Integer id) {

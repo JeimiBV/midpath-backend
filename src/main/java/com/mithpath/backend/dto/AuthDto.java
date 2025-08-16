@@ -20,6 +20,10 @@ public class AuthDto {
     @NotBlank(groups = {LoginGroup.class}, message = "{auth.password.not-blank}")
     private String password;
 
+    @NotNull(groups = {RegisterGroup.class}, message = "{auth.role.not-null}")
+    @NotBlank(groups = {RegisterGroup.class}, message = "{auth.role.not-blank}")
+    private String Role;
+
     public interface RegisterGroup {}
     public interface LoginGroup {}
 
